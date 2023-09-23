@@ -7,6 +7,7 @@
 // Encode
 // Accepts mono audio in big-endian signed 16-bit PCM from stdin
 // ffmpeg -i $NAME.mp3 -ar 44100 -ac 1 -f s16be -acodec pcm_s16be - | ./uqoa_conv > $NAME.bin
+// Consider `-af 'pan=mono|c0=FL'` instead of `-ac 1`, if straight mixdown cancels sounds
 
 // Output: blocks of 258 uint64's
 // [0] - history (all big-endian)
@@ -63,7 +64,7 @@ void encode()
 }
 
 // Decode
-// ./uqoa_conv d < $NAME.bin | ffmpeg -ar 44100 -ac 1 -f s16be -acodec pcm_s16be -i - $NAME.re.mp3
+// ./uqoa_conv d < $NAME.bin | ffmpeg -ar 44100 -ac 1 -f s16be -acodec pcm_s16be -i - $NAME.re.wav
 
 static inline uint64_t get_u64()
 {
