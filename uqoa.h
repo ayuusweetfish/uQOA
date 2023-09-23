@@ -101,8 +101,10 @@ void qoa_start_frame(qoa_lms *lms)
   uint32_t sq_sum = 0;
   for (int i = 0; i < 4; i++) {
     sq_sum += (int32_t)lms->weights[i] * lms->weights[i];
-    if (sq_sum > 0x2fffffff)
+    if (sq_sum > 0x2fffffff) {
       for (int i = 0; i < 4; i++) lms->weights[i] = 0;
+      break;
+    }
   }
   // Otherwise if all weights are zero, initialize weights to {0, 0, -1, 2}
   if (sq_sum == 0) {
@@ -158,7 +160,7 @@ uint64_t qoa_encode_slice(qoa_lms *lms, int16_t samples[20], uint8_t *sf_hint)
 
 void qoa_decode_slice(qoa_lms *lms, uint64_t slice, int16_t out_samples[20])
 {
-  int sf = slice >> 60;
+  uint8_t sf = slice >> 60;
   for (int i = 0; i < 20; i++) {
     int32_t predicted = qoa_lms_predict(lms);
     int16_t quantized = (slice >> 57) & 0x7;
