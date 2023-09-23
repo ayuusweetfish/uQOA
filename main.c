@@ -1,8 +1,8 @@
-#include <math.h>
-#include <stdio.h>
-
 #define uQOA_IMPL
 #include "uqoa.h"
+
+#include <math.h>
+#include <stdio.h>
 
 int main()
 {
@@ -10,6 +10,7 @@ int main()
 
   qoa_lms lms = { 0 };
   uint8_t sf = 0;
+  // qoa_start_frame(&lms);
 
   for (int block = 0; block < 3; block++) {
     puts("------");
