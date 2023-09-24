@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 #ifndef _uQOA_H_
 #define _uQOA_H_
 
