@@ -24,6 +24,14 @@ static inline void put_u64(uint64_t x)
   }
 }
 
+static int eof = 0;
+static inline uint8_t silent_getchar()
+{
+  int c = fgetc(stdin);
+  if (c == -1) eof = 1;
+  return (uint8_t)c;
+}
+
 void encode()
 {
   qoa_lms lms = { 0 };
@@ -33,9 +41,10 @@ void encode()
   int sample_count = 0;
   int slice_count = 0;
 
-  while (!feof(stdin)) {
-    uint8_t msb = fgetc(stdin);
-    uint8_t lsb = fgetc(stdin);
+  while (!eof) {
+    uint8_t msb = silent_getchar();
+    uint8_t lsb = silent_getchar();
+    if (eof) break;
     int16_t sample = (int16_t)(((uint16_t)msb << 8) | lsb);
     samples[sample_count++] = sample;
     if (sample_count == 20) {
@@ -69,7 +78,8 @@ void encode()
 static inline uint64_t get_u64()
 {
   uint64_t x = 0;
-  for (int i = 0; i < 8; i++) x = (x << 8) | fgetc(stdin);
+  for (int i = 0; i < 8; i++)
+    x = (x << 8) | silent_getchar();
   return x;
 }
 
@@ -77,7 +87,7 @@ void decode()
 {
   qoa_lms lms;
 
-  while (!feof(stdin)) {
+  while (!eof) {
     uint64_t history = get_u64();
     for (int i = 0; i < 4; i++)
       lms.history[i] = (int16_t)((history >> ((3 - i) * 16)) & 0xFFFF);
@@ -86,6 +96,7 @@ void decode()
       lms.weights[i] = (int16_t)((weights >> ((3 - i) * 16)) & 0xFFFF);
     for (int n_slice = 0; n_slice < 256 && !feof(stdin); n_slice++) {
       uint64_t slice = get_u64();
+      if (eof) break;
       int16_t samples[20];
       qoa_decode_slice(&lms, slice, samples);
       for (int i = 0; i < 20; i++) {
