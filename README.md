@@ -1,11 +1,13 @@
 # µQOA
 
-µQOA (Micro QOA) is an encoder/decoder implementation for the [Quite OK Audio Format (QOA)](https://qoaformat.org/), targeted at non-desktop environments (e.g. microcontrollers). Features include:
-- < 400 bytes compiled code and data
+µQOA (Micro QOA) is an encoder/decoder implementation for the [Quite OK Audio Format (QOA)](https://qoaformat.org/), targeted at non-desktop environments (e.g. microcontrollers).
+
+µQOA can be ideal if a minimal lossy audio codec is needed in a small environment with reasonable storage (QOA achieves 3.2 bits per sample).
+
+Features include:
+- < 400 bytes compiled code and data (decoder only, ARMv7)
 - Explicit integer width for calculation
-- Stripped-down data format
-  - Single-channel only
-  - No file header; frame header reduced to filter state (16 B)
+- Agnostic on file formats; works directly with data slices
 
 ## Usage
 
