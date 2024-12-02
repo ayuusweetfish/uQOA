@@ -16,15 +16,15 @@ uint64_t qoa_encode_slice(qoa_lms *lms, int16_t samples[20], uint8_t *sf_hint);
 void qoa_decode_slice(qoa_lms *lms, uint64_t slice, int16_t out_samples[20]);
 
 #ifdef uQOA_IMPL
-static int32_t qoa_lms_predict(qoa_lms *lms)
+static inline int32_t qoa_lms_predict(qoa_lms *lms)
 {
-  int64_t prediction = 0;
+  int32_t prediction = 0;
   for (int i = 0; i < 4; i++)
-    prediction += (lms->weights[i] * lms->history[i]) >> 2;
+    prediction += ((int32_t)lms->weights[i] * lms->history[i]) >> 2;
   return prediction >> 11;
 }
 
-static void qoa_lms_update(qoa_lms *lms, int16_t sample, int16_t residual)
+static inline void qoa_lms_update(qoa_lms *lms, int16_t sample, int16_t residual)
 {
   int16_t delta = residual >> 4;
   for (int i = 0; i < 4; i++)
@@ -64,26 +64,26 @@ static inline int16_t qoa_quant(int32_t v, int16_t sf)
 static inline int16_t qoa_dequant(int32_t s, int8_t q)
 {
   // lookup[s][q] = round_away_0(scalefactor[s] * dqt[q])
-  static const int16_t lookup[16][4] = {
-    {   1,    3,    5,     7},
-    {   5,   18,   32,    49},
-    {  16,   53,   95,   147},
-    {  34,  113,  203,   315},
-    {  63,  210,  378,   588},
-    { 104,  345,  621,   966},
-    { 158,  528,  950,  1477},
-    { 228,  760, 1368,  2128},
-    { 316, 1053, 1895,  2947},
-    { 422, 1405, 2529,  3934},
-    { 548, 1828, 3290,  5117},
-    { 696, 2320, 4176,  6496},
-    { 868, 2893, 5207,  8099},
-    {1064, 3548, 6386,  9933},
-    {1286, 4288, 7718, 12005},
-    {1536, 5120, 9216, 14336},
+  static const int16_t lookup[16][8] = {
+    {   1,    -1,    3,    -3,    5,    -5,     7,     -7},
+    {   5,    -5,   18,   -18,   32,   -32,    49,    -49},
+    {  16,   -16,   53,   -53,   95,   -95,   147,   -147},
+    {  34,   -34,  113,  -113,  203,  -203,   315,   -315},
+    {  63,   -63,  210,  -210,  378,  -378,   588,   -588},
+    { 104,  -104,  345,  -345,  621,  -621,   966,   -966},
+    { 158,  -158,  528,  -528,  950,  -950,  1477,  -1477},
+    { 228,  -228,  760,  -760, 1368, -1368,  2128,  -2128},
+    { 316,  -316, 1053, -1053, 1895, -1895,  2947,  -2947},
+    { 422,  -422, 1405, -1405, 2529, -2529,  3934,  -3934},
+    { 548,  -548, 1828, -1828, 3290, -3290,  5117,  -5117},
+    { 696,  -696, 2320, -2320, 4176, -4176,  6496,  -6496},
+    { 868,  -868, 2893, -2893, 5207, -5207,  8099,  -8099},
+    {1064, -1064, 3548, -3548, 6386, -6386,  9933,  -9933},
+    {1286, -1286, 4288, -4288, 7718, -7718, 12005, -12005},
+    {1536, -1536, 5120, -5120, 9216, -9216, 14336, -14336},
   };
-  int16_t r = lookup[s][q / 2];
-  return (q & 1) ? -r : r;
+  int16_t r = lookup[s][q];
+  return r;
 }
 
 static inline int16_t qoa_sat_s16(int32_t x)
